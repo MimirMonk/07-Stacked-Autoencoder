@@ -94,7 +94,7 @@ display_network(W1');
 
 
 %%======================================================================
-%% STEP 2: Train the second sparse autoencoder
+%% STEP 3: Train the second sparse autoencoder
 %  This trains the second sparse autoencoder on the first autoencoder
 %  featurse.
 %  If you've correctly implemented sparseAutoencoderCost.m, you don't need
@@ -131,7 +131,7 @@ sae2Theta = initializeParameters(hiddenSizeL2, hiddenSizeL1);
 
 
 %%======================================================================
-%% STEP 3: Train the softmax classifier
+%% STEP 4: Train the softmax classifier
 %  This trains the sparse autoencoder on the second autoencoder features.
 %  If you've correctly implemented softmaxCost.m, you don't need
 %  to change anything here.
@@ -153,10 +153,13 @@ saeSoftmaxTheta = 0.005 * randn(hiddenSizeL2 * numClasses, 1);
 %  NOTE: If you used softmaxTrain to complete this part of the exercise,
 %        set saeSoftmaxOptTheta = softmaxModel.optTheta(:);
 
+lambda2 = 1e-4;
+options.maxIter = 100;
+softmaxModel = softmaxTrain(hiddenSizeL2, numClasses, lambda2, ...
+                            sae2Features, trainLabels, options);
 
 
-
-
+saeSoftmaxOptTheta = softmaxModel.optTheta(:);
 
 
 
