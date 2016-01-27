@@ -55,10 +55,30 @@ sae1Theta = initializeParameters(hiddenSizeL1, inputSize);
 %                an hidden size of "hiddenSizeL1"
 %                You should store the optimal parameters in sae1OptTheta
 
+% labeledSet   = find(trainLabels > 0 & trainLabels <= 5);
+% unlabeledSet = find(trainLabels >= 6);
+% 
+% labeledData = trainData(:, labeledSet);
+% unlabeledData = trainData(:, unlabeledSet);
+% 
+% % Output Some Statistics
+% fprintf('# examples in unlabeled set: %d\n', size(unlabeledData, 2));
+% fprintf('# examples in supervised training set: %d\n\n', size(labeledData, 2));
+
+addpath minFunc/
+options.Method = 'lbfgs';
+options.maxIter = 400;
+options.display = 'on';
+
+[sae1OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+                                   inputSize, hiddenSizeL1, ...
+                                   lambda, sparsityParam, ...
+                                   beta, trainData), ...
+                              sae1Theta, options);
 
 
-
-
+W1 = reshape(sae1OptTheta(1:hiddenSizeL1 * inputSize), hiddenSizeL1, inputSize);
+display_network(W1');
 
 
 
@@ -94,9 +114,11 @@ sae2Theta = initializeParameters(hiddenSizeL2, hiddenSizeL1);
 %                You should store the optimal parameters in sae2OptTheta
 
 
-
-
-
+[sae2OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+                                   hiddenSizeL1, hiddenSizeL2, ...
+                                   lambda, sparsityParam, ...
+                                   beta, sae1Features), ...
+                              sae2Theta, options);
 
 
 
