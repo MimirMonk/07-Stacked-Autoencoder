@@ -24,7 +24,28 @@ stack = params2stack(theta(hiddenSize*numClasses+1:end), netconfig);
 %  Instructions: Compute pred using theta assuming that the labels start 
 %                from 1.
 
+M = size(data, 2);
 
+%% feed forward
+
+% MLP
+numLayers = numel(stack);
+inputs = cell(numLayers+1,1);
+inputs{1} = data;
+for d = 1:numLayers
+    z = stack{d}.w * inputs{d} + repmat(stack{d}.b, [1,M]);
+    a = sigmoid(z);
+    inputs{d+1} = a;
+end
+
+% Softmax
+x = inputs{numLayers+1};
+z = softmaxTheta * x;
+ez = exp(z);
+ez_sum = sum(ez,1);
+h = ez ./ repmat(ez_sum,[numClasses,1]);
+
+pred = max(h,[],1);
 
 
 
