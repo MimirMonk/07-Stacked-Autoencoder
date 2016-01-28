@@ -91,21 +91,22 @@ cost = -sum(log_idx,1)/M + lambda / 2 * sum(softmaxTheta(:).^2);
 
 %% back propagation
 
-delta = cell(numLayers+1,1);
-
 % Softmax
 
 diff = groundTruth - h;
-delta{end} = -diff;
 
-softmaxThetaGrad = delta{end} * inputs{numLayers+1}' / M  + lambda * softmaxTheta;
+softmaxThetaGrad = -diff * inputs{numLayers+1}' / M  + lambda * softmaxTheta;
 
 % MLP
+delta = cell(numLayers,1);
+a = inputs{numLayers+1};
+delta{end} = a.*(1-a) .* ( - softmaxTheta' * diff );
 
-stack{numLayers+1}.w = softmaxTheta;
-for d = numLayers:-1:1
+for d = numLayers-1:-1:1
     a = inputs{d+1};
     delta{d} = a.*(1-a) .* ( stack{d+1}.w' * delta{d+1} );
+end
+for d = numLayers:-1:1
     stackgrad{d}.w = delta{d} * inputs{d}' / M;
     stackgrad{d}.b = sum(delta{d},2) / M;
 end
