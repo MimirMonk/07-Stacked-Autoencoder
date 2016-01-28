@@ -62,16 +62,53 @@ groundTruth = full(sparse(labels, 1:M, 1));
 %
 
 
+%% feed forward
+
+% MLP
+numLayers = numel(stack);
+inputs = cell(numLayers+1,1);
+inputs{1} = data;
+for d = 1:numLayers
+    z = stack{d}.w * inputs{d} + repmat(stack{d}.b, [1,M]);
+    a = sigmoid(z);
+    inputs{d+1} = a;
+end
+
+% Softmax
+x = inputs{numLayers+1};
+z = softmaxTheta * x;
+ez = exp(z);
+ez_sum = sum(ez,1);
+h = ez ./ repmat(ez_sum,[numClasses,1]);
+
+rows = labels;
+cols = 1:M;
+idx = sub2ind(size(h), rows(:), cols(:));
+h_idx = h(idx);
+log_idx = log(h_idx);
+cost = -sum(log_idx,1)/M + lambda / 2 * sum(softmaxTheta(:).^2);
 
 
+%% back propagation
 
+delta = cell(numLayers+1,1);
 
+% Softmax
 
+diff = groundTruth - h;
+delta{end} = -diff;
 
+softmaxThetaGrad = delta{end} * inputs{numLayers+1}' / M  + lambda * softmaxTheta;
 
+% MLP
 
-
-
+stack{numLayers+1}.w = softmaxTheta;
+for d = numLayers:-1:1
+    a = inputs{d+1};
+    delta{d} = a.*(1-a) .* ( stack{d+1}.w' * delta{d+1} );
+    stackgrad{d}.w = delta{d} * inputs{d}' / M;
+    stackgrad{d}.b = sum(delta{d},2) / M;
+end
 
 
 

@@ -28,7 +28,7 @@ z = theta * data;
 ez = exp(z);
 ezsum = sum(ez,1);
 
-rows = labels;
+rows = labels';
 cols = 1:numCases;
 idx = sub2ind(size(z), rows, cols);
 ezj = ez(idx);
